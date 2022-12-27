@@ -16,8 +16,6 @@
         this.z = z;
     }
     vec3.prototype = {
-        // iop -> inplace
-        // ops -> scalar
         add: function(v) {
             return new vec3(this.x+v.x, this.y+v.y, this.z+v.z);
         },
@@ -121,8 +119,7 @@
     }
     Metal.prototype = extend({}, Material.prototype, {
         reflect: function(ray, normal) {
-            var fuzz = 0.1;
-            var randomInUnitSphere = ((new vec3(0, 0, 0)).getRandomVec3()).mulNum(fuzz);
+            var randomInUnitSphere = ((new vec3(0, 0, 0)).getRandomVec3()).mulNum(0.0);
             return (ray.direction.sub(
                 normal.mulNum(
                     2.0 * ray.direction.dot(normal)))).add(
@@ -224,7 +221,7 @@
             if(direction.dot(ray.direction) > 0.0) {
                 point = ray.origin.add(ray.direction.mulNum(mint*1.0000001));
             }
-                // otherwise move it out to prevent problems with floating point
+            // otherwise move it out to prevent problems with floating point
             // accuracy
             else {
                 point = ray.origin.add(ray.direction.mulNum(mint*0.9999999));
@@ -238,17 +235,17 @@
         var scene = {
             output: {width: width, height: height},
             camera: new Camera(
-                new vec3(0.0, -0.5, 0.0),
+                new vec3(0.0, -0.4, -0.2),
                 new vec3(-1.5, 1.0, 1.0),
                 new vec3(1.5, 1.0, 1.0),
                 new vec3(-1.5, 1.0, -1.0)
             ),
             objects: [
                 // glass sphere
-                new Body(new Sphere(new vec3(1.0, 2.0, 0.0), 0.5), new Glass(new vec3(1.00, 1.00, 1.00), 1.6, 0.3)),
+                new Body(new Sphere(new vec3(1.0, 2.0, 0.0), 0.5), new Glass(new vec3(1.00, 1.00, 1.00), 1.6, 0.2)),
                 // Metal sphere
-                new Body(new Sphere(new vec3(-1.1, 2.8, 0.0), 0.5), new Metal(new vec3(0.8, 0.8, 0.8))),
-                new Body(new Sphere(new vec3(0.0, 1.2, -0.4), 0.1), new Metal(new vec3(0.8, 0.8, 0.8)), 1.0),
+                new Body(new Sphere(new vec3(-1.1, 2.8, 0.0), 0.5), new Metal(new vec3(0.7, 0.7, 0.7))),
+                new Body(new Sphere(new vec3(0.0, 1.2, -0.3), 0.2), new Metal(new vec3(1.0, 1.0, 0.1))),
                 // floor
                 new Body(new Sphere(new vec3(0.0, 3.5, -10e6), 10e6-0.5), new Material(new vec3(1.0, 1.0, 1.0))),
                 // back
