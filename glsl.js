@@ -235,10 +235,10 @@
         var scene = {
             output: {width: width, height: height},
             camera: new Camera(
-                new vec3(0.0, -0.4, -0.2),
-                new vec3(-1.5, 1.0, 1.0),
-                new vec3(1.5, 1.0, 1.0),
-                new vec3(-1.5, 1.0, -1.0)
+                new vec3(0.0, -0.5, -0.2),
+                new vec3(-1.3, 1.0, 1.0),
+                new vec3(1.3, 1.0, 1.0),
+                new vec3(-1.3, 1.0, -1.0)
             ),
             objects: [
                 // glass sphere
@@ -247,15 +247,15 @@
                 new Body(new Sphere(new vec3(-1.1, 2.8, 0.0), 0.5), new Metal(new vec3(0.7, 0.7, 0.7))),
                 new Body(new Sphere(new vec3(0.0, 1.2, -0.3), 0.2), new Metal(new vec3(1.0, 1.0, 0.1))),
                 // floor
-                new Body(new Sphere(new vec3(0.0, 3.5, -10e6), 10e6-0.5), new Material(new vec3(1.0, 1.0, 1.0))),
+                new Body(new Sphere(new vec3(0.0, 2.0, -10e6), 10e6-0.5), new Material(new vec3(1.0, 1.0, 1.0))),
                 // back
                 new Body(new Sphere(new vec3(0.0, 10e6, 0.0), 10e6-4.5), new Material(new vec3(1.0, 1.0, 1.0))),
                 // left
-                new Body(new Sphere(new vec3(-10e6, 3.5, 0.0), 10e6-1.9), new Material(new vec3(1.0, 0.5, 0.5))),
+                new Body(new Sphere(new vec3(-10e6, 2.0, 0.0), 10e6-1.9), new Material(new vec3(1.0, 0.5, 0.5))),
                 // right
-                new Body(new Sphere(new vec3(10e6, 3.5, 0.0), 10e6-1.9), new Material(new vec3(0.5, 1.0, 0.5))),
+                new Body(new Sphere(new vec3(10e6, 2.0, 0.0), 10e6-1.9), new Material(new vec3(0.5, 1.0, 0.5))),
                 // top light
-                new Body(new Sphere(new vec3(0.0, 0.0, 10e6), 10e6-2.5), new Material(new vec3(1.0, 1.0, 1.0), new vec3(1.0, 1.0, 1.0))),
+                new Body(new Sphere(new vec3(0.0, 2.0, 10e6), 10e6-2.5), new Material(new vec3(1.0, 1.0, 1.0), new vec3(1.0, 1.0, 1.0))),
                 // front
                 new Body(new Sphere(new vec3(0.0, -10e6, 0.0), 10e6-2.5), new Material(new vec3(1.0, 1.0, 1.0))),
             ]
