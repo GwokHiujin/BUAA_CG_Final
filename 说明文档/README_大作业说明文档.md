@@ -1,4 +1,51 @@
-(function() {
+---
+学号: 20373543
+姓名: 郭晓燕
+课程: 计算机图形学
+---
+
+# BUAA_CG_Final
+
+## 任务介绍
+
+本作业实现的是编程实践大作业中的自选任务四，完成了如下的具体要求：
+
+- 实现光线跟踪算法
+- 通过底层算法实现计算光线交点来绘制场景
+- 场景中图元数量不少于 5 个
+- 能够实现自然软阴影效果
+- 能够实现一个不锈钢表面材质物体反射周围环境的基本效果
+
+## 运行方法
+
+本作业基于 WebGL 实现，因此只需双击本目录下的 `index.html` 文件，即可自动跳转到浏览器，在所展示的网页中看到作业的运行结果。
+
+经测试，能够在 Edge / Google Chrome / FireFox 浏览器上正常运行。
+
+## 代码结构
+
+```
+├─.idea
+└─glsl.js
+└─index.html
+└─main.js
+```
+
+其中：
+
+- index.html: 用于编辑展示网页的基本框架
+- glsl.js: 项目核心着色器代码，内含光线跟踪的底层算法
+- main.js: 通过调用 WebGL API，将着色器文件中的渲染求解结果绘制到网页上
+
+## 实现简述
+
+考虑到调用 WebGL API 绘制图像的过程比较机械，因此只讲述项目的核心实现 `glsl.js` 部分。
+
+### 预备工作
+
+由于 JS 数据结构等的限制，在实现具体的光线跟踪算法之前需要先手写一些方法，辅助后续工作的进行。笔者在此完成了用于实现类似 cpp 中“衍生类”功能的方法 `extend`（可以扩展参数列表），还有三维向量数据结构 `vec3`。
+
+```js
     //-------------------- 用于实现"衍生类"的方法 --------------------//
 
     // extend: 由于 JS 数据结构的限制，需要手写一个方法扩展"衍生类"的
@@ -12,7 +59,9 @@
         }
         return a;
     }
+```
 
+```js
     //-------------------- 数学定义 --------------------//
 
     // vec3: 由于 JS 数据结构的限制，需要手写一个三维向量类以供使用
@@ -75,17 +124,26 @@
             return Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z);
         }
     };
+```
 
+### 光线跟踪算法
 
+众所周知，实现光线跟踪算法的本质是求解渲染方程的过程。求解渲染方程的基础是基于蒙特卡洛方法计算来自某点法向半球内任意方向的入射光的积累，因此笔者首先实现了一个方法，用于获取此处的随机变量，即法向半球内随机的射线方向。
+
+```js
     // getRandomDirectionInHemisphere: 获得法向半球内的随机向量
     function getRandomDirectionInHemisphere(v){
         // 输入 v 为顶点法向量
         var randomVec3 = (new vec3(0.0, 0.0, 0.0)).getRandomVec3();
         return (randomVec3.add(v)).normalize();
     }
+```
 
-    //-------------------- 物体定义 --------------------//
+> 在此处，笔者完成了一个小小的改进。教材中的经典方法是使用拒绝法，随机生成坐标，如果坐标不在单位球内就拒绝，并重新选取，直到选取到符合条件的向量，而在 Peter Shirley 写的《Ray Tracing in One Weekend Book Series》系列中，使用的方法是以法向量的终点为球心，产生单位球面上的随机向量，然后连接法向量起点和随机向量的终点，得到最终的随机方向。经测试，后者的渲染速度和效果都远远优于前者，实现上也非常简单，因此笔者选择了后者作为最终实现。
 
+接着，需要定义相机和从相机出发的射线。
+
+```js
     // Camera: 定义相机和从相机生成的射线 Ray
     var Camera = function(origin, topleft, topright, bottomleft) {
         // 模拟相机投影与成像规则，指定投影平面和视点，
@@ -108,8 +166,11 @@
             };
         }
     };
+```
 
+然后是产生渲染效果的重中之重：材质定义。此处为了完成作业要求，实现了基础材质 Material、不锈钢表面材质 Metal（本质上是实现了一个镜面反射材质）还有玻璃材质 Glass。其对应的反射 / 折射方程均有现成的物理公式可以参考，此处不再赘述。
 
+```js
     // Material: 定义物体的材质，由颜色和是否发光两个属性组成
     var Material = function(color, emission) {
         this.color = color;
@@ -168,8 +229,11 @@
             return (ray.direction.add(normal.mulNum(theta1)).mulNum(eta).add(normal.mulNum(-theta2)));
         }
     });
+```
 
+为了绘制场景中的物体，还需要再定义球体的绘制及其求交。求交的过程是简单的求解一元二次方程解的过程（满足二解条件即能穿过球，满足一解条件即与球表面相切，满足无解条件即无交点），此处亦不再赘述。
 
+```js
     // Sphere: 绘制球体，属性为球心坐标和球半径
     var Sphere = function(center, radius) {
         this.center = center;
@@ -197,7 +261,11 @@
         this.shape = shape;
         this.material = material;
     }
+```
 
+最后，只需组合上述的代码绘制场景，再完成一个递归求解渲染方程的方法 Renderer 即可。
+
+```js
     //-------------------- 渲染过程 --------------------//
 
     var Renderer = function(scene) {
@@ -271,72 +339,28 @@
             return this.pathTracing(newRay, n+1).mul(hit.material.color).add(hit.material.emission);
         }
     }
+```
 
-    //-------------------- 主体函数 --------------------//
+## 代码运行截屏图片
 
-    var main = function(width, height, iterationsPerMessage, serialize) {
-        var scene = {
-            output: {width: width, height: height},
-            // 创建相机及其视口，
-            // 在标准定义的基础上适当调整了机位以获得更好的视觉效果
-            camera: new Camera(
-                new vec3(0.0, -0.5, -0.2),
-                new vec3(-1.3, 1.0, 1.0),
-                new vec3(1.3, 1.0, 1.0),
-                new vec3(-1.3, 1.0, -1.0)
-            ),
-            // 创建物体
-            objects: [
-                // 玻璃球
-                new Body(new Sphere(new vec3(1.0, 2.0, 0.0), 0.5), new Glass(new vec3(1.00, 1.00, 1.00), 1.6, 0.2)),
-                new Body(new Sphere(new vec3(0.0, 0.9, -0.45), 0.05), new Glass(new vec3(1.00, 1.00, 1.00), 2.0, 0.2)),
-                // 不锈钢球
-                new Body(new Sphere(new vec3(-1.1, 2.8, 0.0), 0.5), new Metal(new vec3(0.7, 0.7, 0.7))),
-                new Body(new Sphere(new vec3(0.0, 1.2, -0.3), 0.2), new Metal(new vec3(1.0, 1.0, 0.1))),
-                // 普通球
-                new Body(new Sphere(new vec3(-0.4, 1.0, -0.4), 0.1), new Material(new vec3(0.5, 0.5, 1.0))),
-                new Body(new Sphere(new vec3(0.4, 0.8, -0.4), 0.1), new Material(new vec3(1.0, 0.1, 1.0))),
-                // floor
-                new Body(new Sphere(new vec3(0.0, 2.0, -10e6), 10e6-0.5), new Material(new vec3(1.0, 1.0, 1.0))),
-                // back
-                new Body(new Sphere(new vec3(0.0, 10e6, 0.0), 10e6-4.5), new Material(new vec3(1.0, 1.0, 1.0))),
-                // left
-                new Body(new Sphere(new vec3(-10e6, 2.0, 0.0), 10e6-1.9), new Material(new vec3(1.0, 0.5, 0.5))),
-                // right
-                new Body(new Sphere(new vec3(10e6, 2.0, 0.0), 10e6-1.9), new Material(new vec3(0.5, 1.0, 0.5))),
-                // top light
-                new Body(new Sphere(new vec3(0.0, 2.0, 10e6), 10e6-2.5), new Material(new vec3(1.0, 1.0, 1.0), new vec3(1.0, 1.0, 1.0))),
-                // front
-                new Body(new Sphere(new vec3(0.0, -10e6, 0.0), 10e6-2.5), new Material(new vec3(1.0, 1.0, 1.0))),
-            ]
-        };
-        var renderer = new Renderer(scene);
-        while(true) {
-            for(var x = 0; x < iterationsPerMessage; x++) {
-                renderer.iterate();
-            }
-            postMessage(serializeBuffer(renderer.buffer, serialize));
-            renderer.clearBuffer();
-        }
-    }
+ ![1672227512599](README/1672227512599.png)
 
-    var serializeBuffer = function(rbuffer, json) {
-        var buffer = [];
-        for(var i = 0; i < rbuffer.length; i++){
-            buffer.push(rbuffer[i].x);
-            buffer.push(rbuffer[i].y);
-            buffer.push(rbuffer[i].z);
-        }
-        return json ? JSON.stringify(buffer) : buffer;
-    }
+ ![1672227531709](README/1672227531709.png)
 
-    onmessage = function(message) {
-        var data = message.data;
-        var serialize = false;
-        if(typeof(data) == 'string') {
-            data = JSON.parse('['+data+']');
-            serialize = true;
-        }
-        main(data[0], data[1], data[2], serialize);
-    }
-})();
+## 存在的改进方向
+
+- 使用球体构建场景过于简单，可以进一步实现三角形的绘制，以完成更复杂的物体的绘制；
+- 枚举场景中的图元导致程序的效率不高，大部分时间都花在了光线求交上，场景中的多边形数目一多，时间开销将是不可忍受的，可以采用 BVH 树等数据结构优化求交，加速渲染过程；
+- 定义材质的部分过于简单粗暴，为不同的材质枚举物理公式似乎也比较繁琐，为了模拟更多的材质，可以尝试 Disney 原则的 BRDF，实现基于物理的渲染；
+- 使用低差异序列与重要性采样来加速光线追踪的收敛；
+- ……
+
+> 感想是：笔者倒是已经学习过了实现上述功能相关的理论知识，奈何身体原因和事务安排等使得笔者没能为大作业预留足够的完成时间，因此最终的实现显得比较粗糙，也算是留下了一些遗憾。
+
+## 参考
+
+- WebGL API 的使用
+    - [WebGLRenderingContext - Web API 接口参考 | MDN (mozilla.org)](https://developer.mozilla.org/zh-CN/docs/Web/API/WebGLRenderingContext)
+- 光线跟踪算法
+    - [Ray Tracing in a Weekend.pdf (realtimerendering.com)](https://www.realtimerendering.com/raytracing/Ray Tracing in a Weekend.pdf)
+    - [Writing a ray tracer for the web (oktomus.com)](https://oktomus.com/posts/2020/ray-tracer-with-webgl-compute/)
