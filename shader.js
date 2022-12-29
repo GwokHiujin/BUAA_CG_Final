@@ -296,6 +296,8 @@
                 // 普通球
                 new Body(new Sphere(new vec3(-0.4, 1.0, -0.4), 0.1), new Material(new vec3(0.5, 0.5, 1.0))),
                 new Body(new Sphere(new vec3(0.4, 0.8, -0.4), 0.1), new Material(new vec3(1.0, 0.1, 1.0))),
+                // 发光球
+                new Body(new Sphere(new vec3(-0.1, 0.5, -0.44), 0.06), new Material(new vec3(1.0, 0.5, 1.0), new vec3(1.0, 1.0, 1.0))),
                 // floor
                 new Body(new Sphere(new vec3(0.0, 2.0, -10e6), 10e6-0.5), new Material(new vec3(1.0, 1.0, 1.0))),
                 // back

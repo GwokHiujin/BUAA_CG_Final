@@ -18,7 +18,7 @@
 
 ## 运行方法
 
-本作业基于 WebGL 实现，因此只需双击本目录下的 `index.html` 文件，即可自动跳转到浏览器，在所展示的网页中看到作业的运行结果。
+本作业基于 Web 实现，因此只需双击本目录下的 `index.html` 文件，即可自动跳转到浏览器，在所展示的网页中看到作业的运行结果。
 
 经测试，能够在 Edge / Google Chrome / FireFox 浏览器上正常运行。
 
@@ -26,7 +26,7 @@
 
 ```
 ├─.idea
-└─glsl.js
+└─shader.js
 └─index.html
 └─main.js
 ```
@@ -34,16 +34,16 @@
 其中：
 
 - index.html: 用于编辑展示网页的基本框架
-- glsl.js: 项目核心着色器代码，内含光线跟踪的底层算法
-- main.js: 通过调用 WebGL API，将着色器文件中的渲染求解结果绘制到网页上
+- shader.js: 项目核心着色器代码，内含光线跟踪的底层算法
+- main.js: 通过调用 Web API（canvas 2d），将着色器文件中的渲染求解结果绘制到网页上
 
 ## 实现简述
 
-考虑到调用 WebGL API 绘制图像的过程比较机械，因此只讲述项目的核心实现 `glsl.js` 部分。
+考虑到调用 WebGL API 绘制图像的过程比较机械，因此只讲述项目的核心实现 `shader.js` 部分。
 
 ### 预备工作
 
-由于 JS 数据结构等的限制，在实现具体的光线跟踪算法之前需要先手写一些方法，辅助后续工作的进行。笔者在此完成了用于实现类似 cpp 中“衍生类”功能的方法 `extend`（可以扩展参数列表），还有三维向量数据结构 `vec3`。
+由于 JS 数据结构和 canvas 2d API 等的限制，在实现具体的光线跟踪算法之前需要先手写一些方法，辅助后续工作的进行。笔者在此完成了用于实现类似 cpp 中“衍生类”功能的方法 `extend`（可以扩展参数列表），还有三维向量数据结构 `vec3`。
 
 ```js
     //-------------------- 用于实现"衍生类"的方法 --------------------//
@@ -349,6 +349,7 @@
 
 ## 存在的改进方向
 
+- canvas 2d API 的功能过于简陋，限制比较多，尝试使用 WebGL 等图形 API；
 - 使用球体构建场景过于简单，可以进一步实现三角形的绘制，以完成更复杂的物体的绘制；
 - 枚举场景中的图元导致程序的效率不高，大部分时间都花在了光线求交上，场景中的多边形数目一多，时间开销将是不可忍受的，可以采用 BVH 树等数据结构优化求交，加速渲染过程；
 - 定义材质的部分过于简单粗暴，为不同的材质枚举物理公式似乎也比较繁琐，为了模拟更多的材质，可以尝试 Disney 原则的 BRDF，实现基于物理的渲染；
@@ -359,8 +360,6 @@
 
 ## 参考
 
-- WebGL API 的使用
-    - [WebGLRenderingContext - Web API 接口参考 | MDN (mozilla.org)](https://developer.mozilla.org/zh-CN/docs/Web/API/WebGLRenderingContext)
 - 光线跟踪算法
     - [Ray Tracing in a Weekend.pdf (realtimerendering.com)](https://www.realtimerendering.com/raytracing/Ray Tracing in a Weekend.pdf)
     - [Writing a ray tracer for the web (oktomus.com)](https://oktomus.com/posts/2020/ray-tracer-with-webgl-compute/)

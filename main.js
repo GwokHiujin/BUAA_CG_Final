@@ -1,6 +1,6 @@
 function main(nworker, iterationsPerMessage, width, height){
     if(typeof(Worker) == 'undefined') {
-        alert('Your browser does not support web glsl!');
+        alert('Your browser does not support web worker!');
         return;
     }
     var canvas = document.createElement('canvas');
@@ -11,15 +11,14 @@ function main(nworker, iterationsPerMessage, width, height){
     var image = ctx.getImageData(0, 0, width, height);
     var buffer = [];
     var iterations = 0;
-    var start = new Date();
     for(var i = 0; i < width*height*3; i++) {
         buffer.push(0.0);
     }
 
     var workers = [];
     for(i = 0; i < nworker;i++){
-        var glsl = new Worker('glsl.js');
-        glsl.onmessage = function(message) {
+        var shader = new Worker('shader.js');
+        shader.onmessage = function(message) {
             iterations += iterationsPerMessage;
             var data = message.data;
             if(typeof(data) == 'string') {
@@ -36,6 +35,6 @@ function main(nworker, iterationsPerMessage, width, height){
             }
             ctx.putImageData(image, 0, 0);
         }
-        glsl.postMessage([width, height, iterationsPerMessage]);
+        shader.postMessage([width, height, iterationsPerMessage]);
     }
 }
