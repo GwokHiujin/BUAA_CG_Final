@@ -15,9 +15,8 @@ function main(nworker, iterationsPerMessage, width, height){
         buffer.push(0.0);
     }
 
-    var workers = [];
     for(i = 0; i < nworker;i++){
-        var shader = new Worker('shader.js');
+        var shader = new Worker('./shader.js');
         shader.onmessage = function(message) {
             iterations += iterationsPerMessage;
             var data = message.data;
